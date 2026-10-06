@@ -1,0 +1,215 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://static.cloudflareinsights.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: blob:; connect-src 'self' https://nearapp.pages.dev https://fonts.googleapis.com https://fonts.gstatic.com https://cloudflareinsights.com; manifest-src 'self'; worker-src 'self'; base-uri 'self'; form-action 'none'; object-src 'none'">
+<meta name="description" content="Near. Сначала ты. Потом всё остальное. Утреннее пространство на несколько минут.">
+<meta name="theme-color" content="#ECEAE6" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#111214" media="(prefers-color-scheme: dark)">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Near · Рядом">
+<meta property="og:description" content="Сначала ты. Потом всё остальное. Утреннее пространство на несколько минут: кем ты хочешь быть сегодня и что одно важно.">
+<meta property="og:image" content="https://nearapp.pages.dev/icons/og.png">
+<meta property="og:image:width" content="1200"><meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" href="../icons/icon.svg" type="image/svg+xml">
+<link rel="icon" href="../icons/favicon-32.png" sizes="32x32" type="image/png">
+<link rel="apple-touch-icon" href="../icons/apple-touch-icon.png">
+<title>Рядом</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Literata:ital,opsz,wght@0,7..72,300..500;1,7..72,300..500&family=Manrope:wght@400;500&display=swap">
+<style>
+/* Layout: one 1040px column, every section shares the same left edge and a two-column grid (label | content) from 860px up. */
+:root {
+  --bg: #F1EFEB; --bg-deep: #E6E4DF; --fg: #1F2421; --fg-soft: #5F6862; --line: #D5D8D2;
+  --mint: #36BE8C; --mint-soft: #A6EECB; --mint-ink: #1E8A63; --device: #F7F6F3; --glow: rgba(166,238,203,.45);
+  --font-display: "Literata", "Iowan Old Style", Georgia, "Noto Serif", serif; /* Literata: Cyrillic + Latin, so RU and EN look the same on every platform */
+  --font-body: "Manrope", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --ease: cubic-bezier(.2,.6,.2,1);
+  --gap: clamp(56px, 9vw, 96px);
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #101412; --bg-deep: #0B0E0D; --fg: #E9EDE9; --fg-soft: #9BA59E; --line: #253029;
+  --mint: #5ED3A6; --mint-soft: #2C6B53; --mint-ink: #7FE3BD; --device: #161B19; --glow: rgba(94,211,166,.14); color-scheme: dark; } }
+:root[data-theme="dark"] {
+  --bg: #101412; --bg-deep: #0B0E0D; --fg: #E9EDE9; --fg-soft: #9BA59E; --line: #253029;
+  --mint: #5ED3A6; --mint-soft: #2C6B53; --mint-ink: #7FE3BD; --device: #161B19; --glow: rgba(94,211,166,.14); color-scheme: dark; }
+
+body { margin: 0; background: var(--bg); color: var(--fg); font-family: var(--font-body); font-size: 1.0625rem; line-height: 1.6; -webkit-font-smoothing: antialiased; overflow-x: hidden; }
+.ground { position: fixed; inset: 0; z-index: 0; pointer-events: none; background: radial-gradient(90% 60% at 85% 0%, var(--glow) 0%, transparent 65%), linear-gradient(180deg, var(--bg) 0%, var(--bg-deep) 100%); }
+.wrap { position: relative; z-index: 1; max-width: 1040px; margin: 0 auto; padding-inline: 24px; padding-block: 0 64px; box-sizing: border-box; }
+@media (min-width: 860px) { .wrap { padding-inline: 48px; } }
+p { margin: 0; }
+a:focus-visible, button:focus-visible, input:focus-visible { outline: 1.5px solid var(--mint); outline-offset: 4px; border-radius: 4px; }
+
+/* Header */
+header { display: flex; justify-content: space-between; align-items: center; padding-block: 24px; }
+.brand { display: flex; align-items: center; gap: 10px; font-family: var(--font-display); font-size: 1.125rem; color: var(--fg); text-decoration: none; }
+.brand svg { width: 28px; height: 28px; border-radius: 7px; flex: none; }
+.brand .ru { color: var(--fg-soft); font-style: italic; }
+.lang { font: inherit; font-size: .9375rem; color: var(--fg-soft); background: none; border: 0; padding: 8px 0; min-height: 44px; cursor: pointer; }
+.lang:hover { color: var(--fg); }
+
+/* Type */
+h1, h2 { font-family: var(--font-display); font-weight: 340; font-variation-settings: "opsz" 72; letter-spacing: -0.015em; line-height: 1.08; margin: 0; text-wrap: balance; }
+h1 { font-size: clamp(2.5rem, 6.4vw, 4.8rem); }
+h2 { font-size: clamp(1.5rem, 2.6vw, 2rem); }
+.label { font-size: .75rem; letter-spacing: .14em; text-transform: uppercase; color: var(--fg-soft); }
+
+/* Hero */
+.hero { display: grid; gap: 48px; padding-block: 8vh var(--gap); align-items: center; }
+@media (min-width: 860px) { .hero { grid-template-columns: 1.2fr .8fr; gap: 64px; } }
+.hero-text { display: grid; gap: 24px; justify-items: start; }
+.lead { font-size: clamp(1.125rem, 1.5vw, 1.3rem); color: var(--fg-soft); line-height: 1.5; max-width: 30rem; }
+.cta { display: flex; flex-wrap: wrap; align-items: center; gap: 12px 24px; margin-top: 8px; }
+.btn { display: inline-flex; align-items: center; min-height: 52px; padding: 0 30px; border-radius: 999px; background: var(--fg); color: var(--bg); text-decoration: none; font-weight: 500; transition: opacity .3s var(--ease), transform .3s var(--ease); }
+.btn:hover { opacity: .9; } .btn:active { transform: scale(.985); }
+.note { font-size: .9375rem; color: var(--fg-soft); }
+.device-wrap { display: none; justify-content: center; }
+@media (min-width: 640px) { .device-wrap { display: flex; } }
+.device { width: min(100%, 280px); aspect-ratio: 9 / 19; border-radius: 40px; background: var(--device); border: 1px solid var(--line); box-shadow: 0 40px 80px -48px rgba(20,40,30,.45); position: relative; overflow: hidden; display: flex; align-items: center; padding: 28px; box-sizing: border-box; }
+.device::before { content: ""; position: absolute; inset: 0; background: radial-gradient(90% 45% at 90% 0%, var(--glow), transparent 65%); }
+.device p { position: relative; font-family: var(--font-display); font-weight: 340; font-size: 1.7rem; line-height: 1.12; letter-spacing: -0.015em; text-wrap: balance; }
+
+/* Sections: label column + content column */
+.sec { display: grid; gap: 24px 48px; padding-block: 40px; border-top: 1px solid var(--line); }
+@media (min-width: 860px) { .sec { grid-template-columns: 220px 1fr; } }
+.sec > * { min-width: 0; }
+
+/* Steps — a real sequence, so numbered */
+.steps { display: grid; gap: 28px 32px; margin: 0; padding: 0; list-style: none; counter-reset: s; }
+@media (min-width: 560px) { .steps { grid-template-columns: 1fr 1fr; } }
+@media (min-width: 1000px) { .steps { grid-template-columns: repeat(4, 1fr); } }
+.steps li { counter-increment: s; display: grid; gap: 8px; align-content: start; }
+.steps li::before { content: counter(s); display: grid; place-items: center; width: 28px; height: 28px; border-radius: 50%; background: var(--mint-soft); color: var(--mint-ink); font-size: .8125rem; font-weight: 500; font-variant-numeric: tabular-nums; }
+.steps b { font-family: var(--font-display); font-weight: 400; font-size: 1.25rem; line-height: 1.25; }
+.steps span { color: var(--fg-soft); font-size: .9375rem; }
+
+.plain.small { font-family: var(--font-body); font-size: .9375rem; color: var(--fg-soft); margin-top: 14px; }
+.plain.small a { color: var(--fg-soft); }
+.plain { font-family: var(--font-display); font-weight: 340; font-size: clamp(1.4rem, 2.4vw, 1.85rem); line-height: 1.3; letter-spacing: -0.01em; max-width: 34rem; text-wrap: balance; }
+
+/* Install */
+.install { display: grid; gap: 20px 32px; }
+@media (min-width: 720px) { .install { grid-template-columns: repeat(3, 1fr); } }
+.install div { display: grid; gap: 4px; align-content: start; }
+.install b { font-weight: 500; }
+.install span { color: var(--fg-soft); font-size: .9375rem; }
+
+/* Share */
+.share-row { display: flex; flex-wrap: wrap; gap: 12px 24px; align-items: center; }
+.share-url { flex: 1 1 16rem; min-width: 0; font: inherit; color: var(--fg); background: transparent; border: 0; border-bottom: 1px solid var(--line); padding: 10px 0; outline: none; }
+.copy { font: inherit; color: var(--mint-ink); background: none; border: 0; padding: 8px 0; min-height: 44px; cursor: pointer; font-weight: 500; }
+.copy:hover { color: var(--fg); }
+
+footer { border-top: 1px solid var(--line); padding-top: 28px; display: flex; flex-wrap: wrap; gap: 8px 32px; justify-content: space-between; color: var(--fg-soft); font-size: .875rem; }
+.enter { animation: enter .9s var(--ease) both; }
+@keyframes enter { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+@media (prefers-reduced-motion: reduce) { .enter { animation: none; } .btn { transition: none; } }
+</style>
+</head>
+<body>
+<div class="ground" aria-hidden="true"></div>
+<div class="wrap">
+  <header>
+    <a class="brand" href="#top">
+      <svg viewBox="0 0 100 100" aria-hidden="true"><defs><linearGradient id="lm" x1="0" y1="1" x2="1" y2="0"><stop offset="0" stop-color="#36BE8C"/><stop offset="1" stop-color="#A6EECB"/></linearGradient></defs><rect width="100" height="100" fill="url(#lm)"/><circle cx="46" cy="50" r="14.5" fill="#fff"/><g transform="rotate(-14 46 50)" fill="none" stroke="#36BE8C" stroke-width="3" stroke-linecap="round"><path d="M38.2 50 Q40.8 52.08 43.4 50"/><path d="M48.6 50 Q51.2 52.08 53.8 50"/></g><rect x="20" y="58" width="60" height="21" rx="10.5" fill="#fff" opacity=".78"/></svg>
+      <span data-i18n="brand">Рядом</span>
+    </a>
+    <button id="langBtn" class="lang" aria-label="Language">EN</button>
+  </header>
+
+  <section class="hero enter" id="top">
+    <div class="hero-text">
+      <h1 data-i18n="h1">Сначала ты. Потом всё остальное.</h1>
+      <p class="lead" data-i18n="lead">Пять тихих минут утром. Один вопрос, немного тела и одно дело на день.</p>
+      <div class="cta">
+        <a class="btn" href="../" data-i18n="cta">Открыть</a>
+        <span class="note" data-i18n="note">Бесплатно, без регистрации. Записи остаются только на твоём телефоне.</span>
+      </div>
+    </div>
+    <div class="device-wrap" aria-hidden="true">
+      <div class="device"><p data-i18n="deviceQ">Кем я хочу быть сегодня?</p></div>
+    </div>
+  </section>
+
+  <section class="sec" aria-labelledby="whyH">
+    <p class="label" id="whyH" data-i18n="whyH">Вместо цифр</p>
+    <p class="plain" data-i18n="why">Ни ленты, ни уведомлений, ни счётчиков. Только цвет: с каждым утром фон чуть мятнее. Пропустишь день — чуть побледнеет и подождёт.</p>
+  </section>
+
+  <section class="sec" aria-labelledby="instH">
+    <p class="label" id="instH" data-i18n="instH">На телефон</p>
+    <div class="install">
+      <div><b>iPhone</b><span data-i18n="i1">Safari → «Поделиться» → «На экран Домой».</span></div>
+      <div><b>Android</b><span data-i18n="i2">Chrome → меню → «Установить приложение».</span></div>
+    </div>
+  </section>
+
+  <section class="sec" aria-labelledby="shareH">
+    <p class="label" id="shareH" data-i18n="shareH">Поделиться</p>
+    <div class="share-row">
+      <input id="shareUrl" class="share-url" type="text" readonly value="https://nearapp.pages.dev/landing/?utm_source=share" aria-label="Link">
+      <button id="copyBtn" class="copy" type="button" data-i18n="copy">Скопировать ссылку</button>
+    </div>
+  </section>
+
+  <footer>
+    <p data-i18n="disclaimer">Рядом не заменяет психотерапию или помощь врача.</p>
+  </footer>
+</div>
+
+<script>
+(function () {
+  const en = {
+    brand: "Near", h1: "You first. Then everything else.",
+    lead: "Five quiet minutes in the morning. One question, a little body, one thing for the day.",
+    cta: "Open", note: "Free, no sign-up. What you write stays on your phone.", deviceQ: "Who do I want to be today?",
+    whyH: "Instead of numbers", why: "No feed, no notifications, no counters. Just colour: each morning the background turns a little more mint. Skip a day and it fades a touch and waits.",
+    instH: "On your phone",
+    i1: "Safari → Share → Add to Home Screen.", i2: "Chrome → menu → Install app.",
+    shareH: "Share", copy: "Copy link", copied: "Link copied",
+    disclaimer: "Near is not a replacement for therapy or medical care."
+  };
+  const ru = {}; document.querySelectorAll("[data-i18n]").forEach(el => ru[el.dataset.i18n] = el.textContent);
+  ru.copied = "Ссылка скопирована";
+  let lang = "ru";
+  try { lang = localStorage.getItem("near.landing.lang") || ((navigator.language || "").toLowerCase().startsWith("ru") ? "ru" : "en"); } catch (e) {}
+  const btn = document.getElementById("langBtn");
+  function apply() {
+    const d = lang === "ru" ? ru : en;
+    document.querySelectorAll("[data-i18n]").forEach(el => { if (el.dataset.i18n in d) el.textContent = d[el.dataset.i18n]; });
+    document.documentElement.lang = lang; document.title = d.brand; btn.textContent = lang === "ru" ? "EN" : "RU";
+    document.querySelectorAll("a.btn").forEach(a => { a.href = a.href.split("#")[0] + "#" + lang; });
+  }
+  btn.addEventListener("click", () => { lang = lang === "ru" ? "en" : "ru"; try { localStorage.setItem("near.landing.lang", lang); } catch (e) {} apply(); });
+
+  const copyBtn = document.getElementById("copyBtn"), shareUrl = document.getElementById("shareUrl");
+  copyBtn.addEventListener("click", async () => {
+    const d = lang === "ru" ? ru : en;
+    try { await navigator.clipboard.writeText(shareUrl.value); } catch (e) { shareUrl.focus(); shareUrl.select(); }
+    copyBtn.textContent = d.copied; setTimeout(() => { copyBtn.textContent = d.copy; }, 2400);
+  });
+  shareUrl.addEventListener("focus", () => shareUrl.select());
+  apply();
+
+  /* Anonymous landing signal: one "landing" a day and "landing_cta" on tap, with utm_source only. Nothing personal. */
+  const src = ((new URLSearchParams(location.search).get("utm_source") || "").toLowerCase().match(/^[a-z0-9_-]{1,32}$/) || [""])[0];
+  const today = new Date().toISOString().slice(0, 10);
+  const API = /\.pages\.dev$|^localhost$|^127\./.test(location.hostname) ? "../api/" : "https://nearapp.pages.dev/api/";
+  shareUrl.value = location.origin + "/landing/?utm_source=share";
+  function ping(type) {
+    try { const k = "near.landing.sent2." + type; if (localStorage.getItem(k) === today) return; localStorage.setItem(k, today); } catch (e) {}
+    const body = JSON.stringify({ type, day: 1, lang, platform: /iPhone|iPad|iPod/.test(navigator.userAgent) ? "ios-browser" : /Android/.test(navigator.userAgent) ? "android-browser" : "desktop-browser", hour: new Date().getHours(), count: 0, source: src });
+    try { if (!(navigator.sendBeacon && navigator.sendBeacon(API + "event", new Blob([body], { type: "text/plain" })))) fetch(API + "event", { method: "POST", body, keepalive: true, mode: "no-cors" }).catch(() => {}); } catch (e) {}
+  }
+  ping("landing");
+  document.querySelectorAll("a.btn").forEach(a => { if (src) a.href = a.href.replace(/(#|$)/, (m) => (a.href.includes("?") ? "&" : "?") + "utm_source=" + src + m); a.addEventListener("click", () => ping("landing_cta")); });
+})();
+</script>
+
+</head>
+</html>
