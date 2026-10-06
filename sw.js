@@ -2,7 +2,7 @@
    App files (HTML/JS/CSS/manifest): network-first, so a new release shows on the next open; cache is the offline fallback.
    Fonts and icons: cache-first (they rarely change).
    VERSION is stamped automatically by the build — never edit it by hand. */
-const VERSION = "near-202610060731-5393f15"; // set by scripts/build.py on every build
+const VERSION = "near-202610060736-5393f15"; // set by scripts/build.py on every build
 const SHELL = ["./", "./index.html", "./src/app.css", "./src/i18n.js", "./src/palette.js", "./src/store.js", "./src/app.js", "./manifest.webmanifest", "./manifest-ru.webmanifest", "./icons/icon.svg", "./icons/icon-192.png", "./icons/icon-512.png", "./icons/apple-touch-icon.png", "./icons/favicon-32.png"];
 
 self.addEventListener("install", e => {
