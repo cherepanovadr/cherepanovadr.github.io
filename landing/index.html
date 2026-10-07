@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://static.cloudflareinsights.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: blob:; connect-src 'self' https://nearapp.pages.dev https://near-relay.deno.dev https://fonts.googleapis.com https://fonts.gstatic.com https://cloudflareinsights.com; manifest-src 'self'; worker-src 'self'; base-uri 'self'; form-action 'none'; object-src 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://static.cloudflareinsights.com https://mc.yandex.ru; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: blob: https://mc.yandex.ru; connect-src 'self' https://nearapp.pages.dev https://near-relay.deno.dev https://mc.yandex.ru https://mc.yandex.com https://fonts.googleapis.com https://fonts.gstatic.com https://cloudflareinsights.com; manifest-src 'self'; worker-src 'self'; base-uri 'self'; form-action 'none'; object-src 'none'">
 <meta name="description" content="Near. Сначала ты. Потом всё остальное. Утреннее пространство на несколько минут.">
 <meta name="theme-color" content="#ECEAE6" media="(prefers-color-scheme: light)">
 <meta name="theme-color" content="#111214" media="(prefers-color-scheme: dark)">
@@ -106,6 +106,12 @@ h2 { font-size: clamp(1.5rem, 2.6vw, 2rem); }
 .copy { font: inherit; color: var(--mint-ink); background: none; border: 0; padding: 8px 0; min-height: 44px; cursor: pointer; font-weight: 500; }
 .copy:hover { color: var(--fg); }
 
+.consent { position: fixed; left: 16px; right: 16px; bottom: 16px; max-width: 520px; margin: 0 auto; background: var(--bg); border: 1px solid var(--line); border-radius: 14px; padding: 16px 18px; box-shadow: 0 8px 30px rgba(0,0,0,.08); font-size: .9rem; color: var(--fg-soft); z-index: 10; }
+.consent p { margin: 0 0 12px; } .consent a { color: var(--fg-soft); }
+.consent-actions { display: flex; gap: 8px 20px; align-items: center; flex-wrap: wrap; }
+.btn.small { padding: 8px 16px; font-size: .9rem; }
+.link { font: inherit; background: none; border: 0; color: var(--fg-faint); cursor: pointer; padding: 8px 0; }
+footer a.privacy { color: var(--fg-faint); }
 footer { border-top: 1px solid var(--line); padding-top: 28px; display: flex; flex-wrap: wrap; gap: 8px 32px; justify-content: space-between; color: var(--fg-soft); font-size: .875rem; }
 .enter { animation: enter .9s var(--ease) both; }
 @keyframes enter { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
@@ -160,7 +166,13 @@ footer { border-top: 1px solid var(--line); padding-top: 28px; display: flex; fl
 
   <footer>
     <p data-i18n="disclaimer">Рядом не заменяет психотерапию или помощь врача.</p>
+    <p><a href="../privacy/" class="privacy" data-i18n="privacy">Данные</a></p>
   </footer>
+</div>
+
+<div class="consent" id="consent" hidden role="dialog" aria-live="polite" aria-label="Cookies">
+  <p data-i18n="consentText">Мы используем Яндекс.Метрику, чтобы понимать, сколько людей заходит и откуда. Это cookies, данные обрабатываются в России. Без Вебвизора и записи действий. <a href="../privacy/" data-i18n="consentMore">Подробнее</a></p>
+  <div class="consent-actions"><button id="consentYes" class="btn small" data-i18n="consentYes">Разрешить</button><button id="consentNo" class="link" data-i18n="consentNo">Не нужно</button></div>
 </div>
 
 <script>
@@ -173,16 +185,17 @@ footer { border-top: 1px solid var(--line); padding-top: 28px; display: flex; fl
     instH: "On your phone",
     i1: "Safari → Share → Add to Home Screen.", i2: "Chrome → menu → Install app.",
     shareH: "Share", copy: "Copy link", copied: "Link copied",
-    disclaimer: "Near is not a replacement for therapy or medical care."
+    disclaimer: "Near is not a replacement for therapy or medical care.", privacy: "Data",
+    consentText: "We use Yandex.Metrica to see how many people visit and where from. It sets cookies and the data is processed in Russia. No session recording. ", consentMore: "More", consentYes: "Allow", consentNo: "No thanks"
   };
-  const ru = {}; document.querySelectorAll("[data-i18n]").forEach(el => ru[el.dataset.i18n] = el.textContent);
+  const ru = {}; document.querySelectorAll("[data-i18n]").forEach(el => ru[el.dataset.i18n] = el.dataset.i18n === "consentText" ? el.firstChild.textContent : el.textContent);
   ru.copied = "Ссылка скопирована";
   let lang = "ru";
   try { lang = localStorage.getItem("near.landing.lang") || ((navigator.language || "").toLowerCase().startsWith("ru") ? "ru" : "en"); } catch (e) {}
   const btn = document.getElementById("langBtn");
   function apply() {
     const d = lang === "ru" ? ru : en;
-    document.querySelectorAll("[data-i18n]").forEach(el => { if (el.dataset.i18n in d) el.textContent = d[el.dataset.i18n]; });
+    document.querySelectorAll("[data-i18n]").forEach(el => { if (!(el.dataset.i18n in d)) return; if (el.dataset.i18n === "consentText") { el.firstChild.textContent = d.consentText; return; } el.textContent = d[el.dataset.i18n]; });
     document.documentElement.lang = lang; document.title = d.brand; btn.textContent = lang === "ru" ? "EN" : "RU";
     document.querySelectorAll("a.btn").forEach(a => { a.href = a.href.split("#")[0] + "#" + lang; });
   }
@@ -208,6 +221,24 @@ footer { border-top: 1px solid var(--line); padding-top: 28px; display: flex; fl
     try { if (!(navigator.sendBeacon && navigator.sendBeacon(API + "event", new Blob([body], { type: "text/plain" })))) fetch(API + "event", { method: "POST", body, keepalive: true, mode: "no-cors" }).catch(() => {}); } catch (e) {}
   }
   ping("landing");
+
+  /* Yandex.Metrica — only on the landing, only after explicit consent (GDPR / 152-ФЗ), no Webvisor, no click maps. ID comes from site.config at build time. */
+  const METRIKA_ID = "";
+  const consent = document.getElementById("consent");
+  function loadMetrika() {
+    if (!/^\d+$/.test(METRIKA_ID) || window.ym) return;
+    window.ym = window.ym || function () { (window.ym.a = window.ym.a || []).push(arguments); }; window.ym.l = Date.now();
+    const sc = document.createElement("script"); sc.async = true; sc.src = "https://mc.yandex.ru/metrika/tag.js"; document.head.appendChild(sc);
+    window.ym(Number(METRIKA_ID), "init", { clickmap: false, trackLinks: true, accurateTrackBounce: true, webvisor: false, defer: true });
+    window.ym(Number(METRIKA_ID), "hit", location.href);
+  }
+  let choice = null; try { choice = localStorage.getItem("near.consent"); } catch (e) {}
+  if (/^\d+$/.test(METRIKA_ID)) {
+    if (choice === "yes") loadMetrika();
+    else if (choice !== "no") consent.hidden = false;
+    document.getElementById("consentYes").onclick = () => { try { localStorage.setItem("near.consent", "yes"); } catch (e) {} consent.hidden = true; loadMetrika(); };
+    document.getElementById("consentNo").onclick = () => { try { localStorage.setItem("near.consent", "no"); } catch (e) {} consent.hidden = true; };
+  }
   document.querySelectorAll("a.btn").forEach(a => { if (src) a.href = a.href.replace(/(#|$)/, (m) => (a.href.includes("?") ? "&" : "?") + "utm_source=" + src + m); a.addEventListener("click", () => ping("landing_cta")); });
 })();
 </script>

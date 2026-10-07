@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<link rel="icon" href="../icons/icon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Literata:ital,opsz,wght@0,7..72,300..500;1,7..72,300..500&family=Manrope:wght@400;500&display=swap">
+<title>Рядом · Данные</title>
+<style>
+:root { --bg:#ECEAE6; --fg:#211F1C; --fg-soft:#6B6761; --fg-faint:#A5A099; --line:#CFCAC2; --font-display:"Literata","Iowan Old Style",Georgia,serif; --font-body:"Manrope",system-ui,sans-serif; color-scheme: light; }
+@media (prefers-color-scheme: dark) { :root { --bg:#111214; --fg:#ECE8E1; --fg-soft:#A29D95; --fg-faint:#5F5B55; --line:#2A2B2E; color-scheme: dark; } }
+html,body { margin:0; background:var(--bg); color:var(--fg); font-family:var(--font-body); font-size:1.0625rem; line-height:1.6; }
+main { max-width: 36rem; margin: 0 auto; padding: 48px 24px 80px; }
+h1 { font-family:var(--font-display); font-weight:340; font-size:clamp(1.8rem,4vw,2.4rem); margin:0 0 20px; letter-spacing:-.01em; }
+p { color:var(--fg-soft); margin:0 0 14px; } a { color:var(--fg); }
+.lang { font-size:.8125rem; color:var(--fg-faint); margin-bottom:24px; } .lang button { font:inherit; color:inherit; background:none; border:0; padding:0; cursor:pointer; text-decoration:underline; }
+.small { font-size:.875rem; color:var(--fg-faint); }
+</style>
+</head>
+<body>
+<main>
+  <p class="lang"><button id="langBtn">English</button></p>
+  <div data-l="ru">
+    <h1>Данные</h1>
+    <p><b>Твои слова остаются у тебя.</b> Всё, что ты пишешь в Рядом, хранится только в браузере твоего устройства. Аккаунтов нет, сервера с записями нет.</p>
+    <p><b>Что считаем.</b> Раз в день приложение отправляет короткий обезличенный сигнал: утро начато или завершено, язык, тип устройства, страна. Без имён, идентификаторов и текстов. Храним до 24 месяцев.</p>
+    <p><b>Яндекс.Метрика</b> стоит только на странице-визитке и включается только после твоего согласия в баннере. Она ставит cookies и считает визиты, страны и источники переходов; данные обрабатываются в России. Без Вебвизора и записи действий. Согласие можно отозвать, очистив cookies сайта.</p>
+    <p><b>Оператор данных:</b> Дарина Черепанова, Кипр. Вопросы и запросы на удаление: <a href="mailto:cherepanovadr@gmail.com">cherepanovadr@gmail.com</a>.</p>
+    <p class="small">Рядом не заменяет психотерапию или помощь врача.</p>
+  </div>
+  <div data-l="en" hidden>
+    <h1>Data</h1>
+    <p><b>Your words stay with you.</b> Everything you write in Near lives only in your device's browser. No accounts, no server with your notes.</p>
+    <p><b>What we count.</b> Once a day the app sends a short anonymous signal: morning started or finished, language, device type, country. No names, identifiers or text. Kept up to 24 months.</p>
+    <p><b>Yandex.Metrica</b> runs only on the landing page and only after you allow it in the banner. It sets cookies and counts visits, countries and referrers; the data is processed in Russia. No session recording. Withdraw consent by clearing the site's cookies.</p>
+    <p><b>Data controller:</b> Darina Cherepanova, Cyprus. Questions and deletion requests: <a href="mailto:cherepanovadr@gmail.com">cherepanovadr@gmail.com</a>.</p>
+    <p class="small">Near is not a replacement for therapy or medical care.</p>
+  </div>
+</main>
+<script>
+(function () {
+  let lang = (location.hash || "").includes("en") ? "en" : ((navigator.language || "").toLowerCase().startsWith("ru") ? "ru" : "en");
+  const btn = document.getElementById("langBtn");
+  function apply() { document.querySelectorAll("[data-l]").forEach(el => el.hidden = el.dataset.l !== lang); document.documentElement.lang = lang; btn.textContent = lang === "ru" ? "English" : "Русский"; }
+  btn.onclick = () => { lang = lang === "ru" ? "en" : "ru"; apply(); };
+  apply();
+})();
+</script>
+
+</head>
+</html>
