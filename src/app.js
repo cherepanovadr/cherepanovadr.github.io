@@ -68,7 +68,8 @@
     return os + (standalone ? "-standalone" : "-browser");
   }
   /* The API lives on Cloudflare. From a mirror (GitHub Pages, for people where Cloudflare is blocked) the call is cross-origin and may simply fail: the app never depends on it. */
-  const API = /\.pages\.dev$|^localhost$|^127\./.test(location.hostname) ? "api/" : "https://nearapp.pages.dev/api/";
+  /* On Cloudflare: straight to the function. Elsewhere (GitHub Pages, own domain): through the relay, which Russia does not block. */
+  const API = /\.pages\.dev$|^localhost$|^127\./.test(location.hostname) ? "api/" : window.TH.RELAY;
   function signal(type) {
     if (store.sentToday(type) || location.protocol === "file:") return;
     store.markSent(type);
