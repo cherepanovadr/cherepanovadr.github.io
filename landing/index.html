@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://static.cloudflareinsights.com https://mc.yandex.ru; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: blob: https://mc.yandex.ru; connect-src 'self' https://nearapp.pages.dev https://near-relay.deno.dev https://mc.yandex.ru https://mc.yandex.com https://fonts.googleapis.com https://fonts.gstatic.com https://cloudflareinsights.com; manifest-src 'self'; worker-src 'self'; base-uri 'self'; form-action 'none'; object-src 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://static.cloudflareinsights.com https://mc.yandex.ru https://yastatic.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: blob: https://mc.yandex.ru; connect-src 'self' https://nearapp.pages.dev https://near-relay.deno.dev https://mc.yandex.ru https://mc.yandex.com wss://mc.yandex.ru https://fonts.googleapis.com https://fonts.gstatic.com https://cloudflareinsights.com; manifest-src 'self'; worker-src 'self'; child-src blob: https://mc.yandex.ru; frame-src blob: https://mc.yandex.ru; base-uri 'self'; form-action 'none'; object-src 'none'">
 <meta name="description" content="Near. Сначала ты. Потом всё остальное. Утреннее пространство на несколько минут.">
 <meta name="theme-color" content="#ECEAE6" media="(prefers-color-scheme: light)">
 <meta name="theme-color" content="#111214" media="(prefers-color-scheme: dark)">
@@ -171,7 +171,7 @@ footer { border-top: 1px solid var(--line); padding-top: 28px; display: flex; fl
 </div>
 
 <div class="consent" id="consent" hidden role="dialog" aria-live="polite" aria-label="Cookies">
-  <p data-i18n="consentText">Мы используем Яндекс.Метрику, чтобы понимать, сколько людей заходит и откуда. Это cookies, данные обрабатываются в России. Без Вебвизора и записи действий. <a href="../privacy/" data-i18n="consentMore">Подробнее</a></p>
+  <p data-i18n="consentText">Мы используем Яндекс.Метрику с Вебвизором, чтобы понимать, сколько людей заходит, откуда и как читают эту страницу. Это cookies и запись действий на этой странице, данные обрабатываются в России. Приложение и твои записи в нём не записываются. <a href="../privacy/" data-i18n="consentMore">Подробнее</a></p>
   <div class="consent-actions"><button id="consentYes" class="btn small" data-i18n="consentYes">Разрешить</button><button id="consentNo" class="link" data-i18n="consentNo">Не нужно</button></div>
 </div>
 
@@ -186,7 +186,7 @@ footer { border-top: 1px solid var(--line); padding-top: 28px; display: flex; fl
     i1: "Safari → Share → Add to Home Screen.", i2: "Chrome → menu → Install app.",
     shareH: "Share", copy: "Copy link", copied: "Link copied",
     disclaimer: "Near is not a replacement for therapy or medical care.", privacy: "Data",
-    consentText: "We use Yandex.Metrica to see how many people visit and where from. It sets cookies and the data is processed in Russia. No session recording. ", consentMore: "More", consentYes: "Allow", consentNo: "No thanks"
+    consentText: "We use Yandex.Metrica with Session Replay to see how many people visit, where from and how they read this page. It sets cookies and records actions on this page; the data is processed in Russia. The app and what you write in it are never recorded. ", consentMore: "More", consentYes: "Allow", consentNo: "No thanks"
   };
   const ru = {}; document.querySelectorAll("[data-i18n]").forEach(el => ru[el.dataset.i18n] = el.dataset.i18n === "consentText" ? el.firstChild.textContent : el.textContent);
   ru.copied = "Ссылка скопирована";
@@ -222,14 +222,14 @@ footer { border-top: 1px solid var(--line); padding-top: 28px; display: flex; fl
   }
   ping("landing");
 
-  /* Yandex.Metrica — only on the landing, only after explicit consent (GDPR / 152-ФЗ), no Webvisor, no click maps. ID comes from site.config at build time. */
+  /* Yandex.Metrica with Webvisor — only on the landing (no personal text here), only after explicit consent (GDPR / 152-ФЗ). ID comes from site.config at build time. */
   const METRIKA_ID = "";
   const consent = document.getElementById("consent");
   function loadMetrika() {
     if (!/^\d+$/.test(METRIKA_ID) || window.ym) return;
     window.ym = window.ym || function () { (window.ym.a = window.ym.a || []).push(arguments); }; window.ym.l = Date.now();
     const sc = document.createElement("script"); sc.async = true; sc.src = "https://mc.yandex.ru/metrika/tag.js"; document.head.appendChild(sc);
-    window.ym(Number(METRIKA_ID), "init", { clickmap: false, trackLinks: true, accurateTrackBounce: true, webvisor: false, defer: true });
+    window.ym(Number(METRIKA_ID), "init", { clickmap: true, trackLinks: true, accurateTrackBounce: true, webvisor: true, defer: true });
     window.ym(Number(METRIKA_ID), "hit", location.href);
   }
   let choice = null; try { choice = localStorage.getItem("near.consent"); } catch (e) {}
