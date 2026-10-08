@@ -41,7 +41,7 @@ window.TH.i18n = {
     restored: "Утра вернулись",
     nothingNew: "Всё уже здесь",
     badFile: "Этот файл не получилось прочитать",
-    writeToDari: "Написать Дари",
+    writeToDari: "Написать нам",
     meOn: "Этот телефон не считается",
     meOff: "Этот телефон снова считается",
     stageLabel: ["Вопрос дня", "Тело", "Одно действие", "Завершено"]
@@ -83,7 +83,7 @@ window.TH.i18n = {
     restored: "Your mornings are back",
     nothingNew: "Everything is already here",
     badFile: "This file couldn't be read",
-    writeToDari: "Write to Dari",
+    writeToDari: "Write to us",
     meOn: "This phone is not counted",
     meOff: "This phone is counted again",
     stageLabel: ["Question of the day", "Body", "One thing", "Complete"]
