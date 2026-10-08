@@ -224,7 +224,7 @@ footer { border-top: 1px solid var(--line); padding-top: 28px; display: flex; fl
   ping("landing");
 
   /* Yandex.Metrica with Webvisor — only on the landing (no personal text here), only after explicit consent (GDPR / 152-ФЗ). ID comes from site.config at build time. */
-  const METRIKA_ID = "";
+  const METRIKA_ID = "113569014";
   const consent = document.getElementById("consent");
   function loadMetrika() {
     if (!/^\d+$/.test(METRIKA_ID) || window.ym) return;
