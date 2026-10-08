@@ -212,13 +212,17 @@ footer { border-top: 1px solid var(--line); padding-top: 28px; display: flex; fl
   apply();
 
   /* Anonymous landing signal: one "landing" a day and "landing_cta" on tap, with utm_source only. Nothing personal. */
-  const src = ((new URLSearchParams(location.search).get("utm_source") || "").toLowerCase().match(/^[a-z0-9_-]{1,32}$/) || [""])[0];
+  const qs = new URLSearchParams(location.search);
+  /* Dari's own devices and test runs (?me=1, same flag as the app) are tagged "me" and left out of the numbers. */
+  try { if (qs.get("me") === "1" || qs.get("me") === "0") localStorage.setItem("near.me", qs.get("me")); } catch (e) {}
+  let isMe = false; try { isMe = localStorage.getItem("near.me") === "1"; } catch (e) {}
+  const src = ((qs.get("utm_source") || "").toLowerCase().match(/^[a-z0-9_-]{1,32}$/) || [""])[0];
   const today = new Date().toISOString().slice(0, 10);
   const API = /\.pages\.dev$|^localhost$|^127\./.test(location.hostname) ? "../api/" : "https://near-relay.cherepanovadr.deno.net/";
   shareUrl.value = location.origin + "/?utm_source=share";
   function ping(type) {
     try { const k = "near.landing.sent2." + type; if (localStorage.getItem(k) === today) return; localStorage.setItem(k, today); } catch (e) {}
-    const body = JSON.stringify({ type, day: 1, lang, platform: /iPhone|iPad|iPod/.test(navigator.userAgent) ? "ios-browser" : /Android/.test(navigator.userAgent) ? "android-browser" : "desktop-browser", hour: new Date().getHours(), count: 0, source: src });
+    const body = JSON.stringify({ type, day: 1, lang, platform: /iPhone|iPad|iPod/.test(navigator.userAgent) ? "ios-browser" : /Android/.test(navigator.userAgent) ? "android-browser" : "desktop-browser", hour: new Date().getHours(), count: 0, source: isMe ? "me" : src });
     try { if (!(navigator.sendBeacon && navigator.sendBeacon(API + "event", new Blob([body], { type: "text/plain" })))) fetch(API + "event", { method: "POST", body, keepalive: true, mode: "no-cors" }).catch(() => {}); } catch (e) {}
   }
   ping("landing");
