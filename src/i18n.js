@@ -1,6 +1,6 @@
 /* Near — copy. Two languages, one voice: short, calm, no exclamation marks. */
 window.TH = window.TH || {};
-window.TH.SHARE_URL = "https://nearapp.pages.dev/landing/";
+window.TH.SHARE_URL = "https://innernear.com/landing/";
 window.TH.FEEDBACK_EMAIL = "cherepanovadr@gmail.com";
 window.TH.RELAY = "https://near-relay.deno.dev/"; // usage signal for hosts outside Cloudflare (see relay/)
 window.TH.i18n = {
