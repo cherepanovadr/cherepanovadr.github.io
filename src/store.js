@@ -117,10 +117,10 @@ window.TH = window.TH || {};
     const tk = todayKey();
     const text = v => (typeof v === "string" ? v : "").slice(0, 2000);
     const clean = r => ({ date: r.date, stage: "done", bodyIndex: 0, identity: text(r.identity), reflection: text(r.reflection), oneThing: text(r.oneThing), completedAt: typeof r.completedAt === "string" ? r.completedAt.slice(0, 40) : null });
-    const incoming = data.mornings.filter(r => isRecord(r) && okDate(r.date, tk)).slice(0, 365).map(clean).filter(hasContent);
+    const incoming = data.mornings.filter(r => isRecord(r) && okDate(r.date, tk)).slice(-366).map(clean).filter(hasContent);
     const h = (read(K.history) || []).filter(r => r && typeof r === "object"); // what is already here is kept as is
     let t = read(K.today);
-    if (t && t.date !== tk) { if (hasContent(t)) h.push(t); t = null; } // same day rollover as loadToday
+    if (t && t.date !== tk) { if (hasContent(t)) h.push(t); t = fresh(); write(K.today, t); } // same day rollover as loadToday
     const have = new Set(h.map(r => r.date));
     if (hasContent(t)) have.add(t.date);
     let added = 0;

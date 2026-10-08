@@ -3,7 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://static.cloudflareinsights.com https://mc.yandex.ru https://yastatic.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: blob: https://mc.yandex.ru; connect-src 'self' https://nearapp.pages.dev https://near-relay.deno.dev https://mc.yandex.ru https://mc.yandex.com wss://mc.yandex.ru https://fonts.googleapis.com https://fonts.gstatic.com https://cloudflareinsights.com; manifest-src 'self'; worker-src 'self'; child-src blob: https://mc.yandex.ru; frame-src blob: https://mc.yandex.ru; base-uri 'self'; form-action 'none'; object-src 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://static.cloudflareinsights.com https://mc.yandex.ru https://yastatic.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: blob: https://mc.yandex.ru; connect-src 'self' https://nearapp.pages.dev https://near-relay.cherepanovadr.deno.net https://mc.yandex.ru https://mc.yandex.com wss://mc.yandex.ru https://fonts.googleapis.com https://fonts.gstatic.com https://cloudflareinsights.com; manifest-src 'self'; worker-src 'self'; child-src blob: https://mc.yandex.ru; frame-src blob: https://mc.yandex.ru; base-uri 'self'; form-action 'none'; object-src 'none'">
+<script>if (window.top !== window.self) { try { window.top.location = window.self.location.href; } catch (e) { document.documentElement.style.display = "none"; } }</script>
 <meta name="description" content="Near. Сначала ты. Потом всё остальное. Утреннее пространство на несколько минут.">
 <meta name="theme-color" content="#ECEAE6" media="(prefers-color-scheme: light)">
 <meta name="theme-color" content="#111214" media="(prefers-color-scheme: dark)">
@@ -24,7 +25,7 @@
 <style>
 /* Layout: one 1040px column, every section shares the same left edge and a two-column grid (label | content) from 860px up. */
 :root {
-  --bg: #F1EFEB; --bg-deep: #E6E4DF; --fg: #1F2421; --fg-soft: #5F6862; --line: #D5D8D2;
+  --bg: #F1EFEB; --bg-deep: #E6E4DF; --fg: #1F2421; --fg-soft: #5F6862; --fg-faint: #8E968F; --line: #D5D8D2;
   --mint: #36BE8C; --mint-soft: #A6EECB; --mint-ink: #1E8A63; --device: #F7F6F3; --glow: rgba(166,238,203,.45);
   --font-display: "Literata", "Iowan Old Style", Georgia, "Noto Serif", serif; /* Literata: Cyrillic + Latin, so RU and EN look the same on every platform */
   --font-body: "Manrope", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
@@ -33,10 +34,10 @@
   color-scheme: light;
 }
 @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
-  --bg: #101412; --bg-deep: #0B0E0D; --fg: #E9EDE9; --fg-soft: #9BA59E; --line: #253029;
+  --bg: #101412; --bg-deep: #0B0E0D; --fg: #E9EDE9; --fg-soft: #9BA59E; --fg-faint: #69736C; --line: #253029;
   --mint: #5ED3A6; --mint-soft: #2C6B53; --mint-ink: #7FE3BD; --device: #161B19; --glow: rgba(94,211,166,.14); color-scheme: dark; } }
 :root[data-theme="dark"] {
-  --bg: #101412; --bg-deep: #0B0E0D; --fg: #E9EDE9; --fg-soft: #9BA59E; --line: #253029;
+  --bg: #101412; --bg-deep: #0B0E0D; --fg: #E9EDE9; --fg-soft: #9BA59E; --fg-faint: #69736C; --line: #253029;
   --mint: #5ED3A6; --mint-soft: #2C6B53; --mint-ink: #7FE3BD; --device: #161B19; --glow: rgba(94,211,166,.14); color-scheme: dark; }
 
 body { margin: 0; background: var(--bg); color: var(--fg); font-family: var(--font-body); font-size: 1.0625rem; line-height: 1.6; -webkit-font-smoothing: antialiased; overflow-x: hidden; }
@@ -159,14 +160,14 @@ footer { border-top: 1px solid var(--line); padding-top: 28px; display: flex; fl
   <section class="sec" aria-labelledby="shareH">
     <p class="label" id="shareH" data-i18n="shareH">Поделиться</p>
     <div class="share-row">
-      <input id="shareUrl" class="share-url" type="text" readonly value="https://innernear.com/landing/?utm_source=share" aria-label="Link">
+      <input id="shareUrl" class="share-url" type="text" readonly value="https://innernear.com/?utm_source=share" aria-label="Link">
       <button id="copyBtn" class="copy" type="button" data-i18n="copy">Скопировать ссылку</button>
     </div>
   </section>
 
   <footer>
     <p data-i18n="disclaimer">Рядом не заменяет психотерапию или помощь врача.</p>
-    <p><a href="../privacy/" class="privacy" data-i18n="privacy">Данные</a></p>
+    <p><a href="../privacy/" class="privacy" data-i18n="privacy">Данные</a> · <a href="#" class="privacy" id="cookiesAgain" data-i18n="cookies">Cookies</a></p>
   </footer>
 </div>
 
@@ -213,8 +214,8 @@ footer { border-top: 1px solid var(--line); padding-top: 28px; display: flex; fl
   /* Anonymous landing signal: one "landing" a day and "landing_cta" on tap, with utm_source only. Nothing personal. */
   const src = ((new URLSearchParams(location.search).get("utm_source") || "").toLowerCase().match(/^[a-z0-9_-]{1,32}$/) || [""])[0];
   const today = new Date().toISOString().slice(0, 10);
-  const API = /\.pages\.dev$|^localhost$|^127\./.test(location.hostname) ? "../api/" : "https://near-relay.deno.dev/";
-  shareUrl.value = location.origin + "/landing/?utm_source=share";
+  const API = /\.pages\.dev$|^localhost$|^127\./.test(location.hostname) ? "../api/" : "https://near-relay.cherepanovadr.deno.net/";
+  shareUrl.value = location.origin + "/?utm_source=share";
   function ping(type) {
     try { const k = "near.landing.sent2." + type; if (localStorage.getItem(k) === today) return; localStorage.setItem(k, today); } catch (e) {}
     const body = JSON.stringify({ type, day: 1, lang, platform: /iPhone|iPad|iPod/.test(navigator.userAgent) ? "ios-browser" : /Android/.test(navigator.userAgent) ? "android-browser" : "desktop-browser", hour: new Date().getHours(), count: 0, source: src });
@@ -237,6 +238,7 @@ footer { border-top: 1px solid var(--line); padding-top: 28px; display: flex; fl
     if (choice === "yes") loadMetrika();
     else if (choice !== "no") consent.hidden = false;
     document.getElementById("consentYes").onclick = () => { try { localStorage.setItem("near.consent", "yes"); } catch (e) {} consent.hidden = true; loadMetrika(); };
+    document.getElementById("cookiesAgain").onclick = e => { e.preventDefault(); try { localStorage.removeItem("near.consent"); } catch (err) {} document.cookie.split(";").forEach(c => { const n = c.split("=")[0].trim(); if (/^_ym/.test(n)) document.cookie = n + "=; Max-Age=0; path=/; domain=" + location.hostname.replace(/^www\./, ""); }); location.reload(); };
     document.getElementById("consentNo").onclick = () => { try { localStorage.setItem("near.consent", "no"); } catch (e) {} consent.hidden = true; };
   }
   document.querySelectorAll("a.btn").forEach(a => { if (src) a.href = a.href.replace(/(#|$)/, (m) => (a.href.includes("?") ? "&" : "?") + "utm_source=" + src + m); a.addEventListener("click", () => ping("landing_cta")); });

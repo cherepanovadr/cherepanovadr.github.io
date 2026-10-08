@@ -4,6 +4,8 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://static.cloudflareinsights.com https://mc.yandex.ru https://yastatic.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: blob: https://mc.yandex.ru; connect-src 'self' https://nearapp.pages.dev https://near-relay.cherepanovadr.deno.net https://mc.yandex.ru https://mc.yandex.com wss://mc.yandex.ru https://fonts.googleapis.com https://fonts.gstatic.com https://cloudflareinsights.com; manifest-src 'self'; worker-src 'self'; child-src blob: https://mc.yandex.ru; frame-src blob: https://mc.yandex.ru; base-uri 'self'; form-action 'none'; object-src 'none'">
+<script>if (window.top !== window.self) { try { window.top.location = window.self.location.href; } catch (e) { document.documentElement.style.display = "none"; } }</script>
 <link rel="icon" href="../icons/icon.svg" type="image/svg+xml">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -26,17 +28,17 @@ p { color:var(--fg-soft); margin:0 0 14px; } a { color:var(--fg); }
   <div data-l="ru">
     <h1>Данные</h1>
     <p><b>Твои слова остаются у тебя.</b> Всё, что ты пишешь в Рядом, хранится только в браузере твоего устройства. Аккаунтов нет, сервера с записями нет.</p>
-    <p><b>Что считаем.</b> Раз в день приложение отправляет короткий обезличенный сигнал: утро начато или завершено, язык, тип устройства, страна. Без имён, идентификаторов и текстов. Храним до 24 месяцев.</p>
-    <p><b>Яндекс.Метрика</b> стоит только на странице-визитке и включается только после твоего согласия в баннере. Она ставит cookies, считает визиты, страны и источники переходов и с помощью Вебвизора записывает действия на этой странице: прокрутку, нажатия, движение курсора. Приложение и всё, что ты в нём пишешь, Метрика не видит. Данные обрабатываются в России. Согласие можно отозвать, очистив cookies сайта.</p>
-    <p><b>Вопросы и запросы на удаление:</b> <a href="mailto:cherepanovadr@gmail.com">cherepanovadr@gmail.com</a>.</p>
+    <p><b>Что считаем.</b> Приложение и эта страница отправляют короткие обезличенные сигналы: какой шаг утра пройден, язык, тип устройства, час, сколько утр уже было, пропуски, метка ссылки, страна и город. Страну и город определяет сервер по адресу запроса (для части посетителей — через сервис GeoJS); сам адрес не сохраняется. Без имён, идентификаторов и текстов. Храним до 24 месяцев.</p>
+    <p><b>Яндекс.Метрика</b> стоит только на странице-визитке и включается только после твоего согласия в баннере. Она ставит cookies, считает визиты, страны и источники переходов и с помощью Вебвизора записывает действия на этой странице: прокрутку, нажатия, движение курсора. Приложение и всё, что ты в нём пишешь, Метрика не видит. Данные обрабатываются в России. Согласие можно отозвать ссылкой «Cookies» внизу страницы-визитки.</p>
+    <p><b>Вопросы и запросы на удаление:</b> <a href="mailto:hello@innernear.com">hello@innernear.com</a>.</p>
     <p class="small">Рядом не заменяет психотерапию или помощь врача.</p>
   </div>
   <div data-l="en" hidden>
     <h1>Data</h1>
     <p><b>Your words stay with you.</b> Everything you write in Near lives only in your device's browser. No accounts, no server with your notes.</p>
-    <p><b>What we count.</b> Once a day the app sends a short anonymous signal: morning started or finished, language, device type, country. No names, identifiers or text. Kept up to 24 months.</p>
-    <p><b>Yandex.Metrica</b> runs only on the landing page and only after you allow it in the banner. It sets cookies, counts visits, countries and referrers, and with Session Replay records actions on that page: scrolling, taps, cursor movement. It never sees the app or anything you write in it. The data is processed in Russia. Withdraw consent by clearing the site's cookies.</p>
-    <p><b>Questions and deletion requests:</b> <a href="mailto:cherepanovadr@gmail.com">cherepanovadr@gmail.com</a>.</p>
+    <p><b>What we count.</b> The app and this page send short anonymous signals: which step of the morning was reached, language, device type, hour, how many mornings so far, gaps, link tag, country and city. Country and city are derived by the server from the request address (for some visitors via the GeoJS service); the address itself is not stored. No names, identifiers or text. Kept up to 24 months.</p>
+    <p><b>Yandex.Metrica</b> runs only on the landing page and only after you allow it in the banner. It sets cookies, counts visits, countries and referrers, and with Session Replay records actions on that page: scrolling, taps, cursor movement. It never sees the app or anything you write in it. The data is processed in Russia. Withdraw consent with the “Cookies” link at the bottom of the landing page.</p>
+    <p><b>Questions and deletion requests:</b> <a href="mailto:hello@innernear.com">hello@innernear.com</a>.</p>
     <p class="small">Near is not a replacement for therapy or medical care.</p>
   </div>
 </main>

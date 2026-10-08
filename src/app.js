@@ -10,6 +10,9 @@
   const hashLang = (location.hash || "").replace("#", "").toLowerCase();
   let lang = ["ru", "en"].includes(hashLang) ? hashLang : store.getLang();
   if (["ru", "en"].includes(hashLang)) store.setLang(hashLang);
+  /* One link for everyone: a newcomer who opens innernear.com in a browser first sees the short landing; anyone who has used Рядом (or opens the installed app) goes straight to the morning. */
+  const standalone = window.matchMedia("(display-mode: standalone)").matches || navigator.standalone === true;
+  if (!lang && !standalone && !store.history().length && /\/(index\.html)?$/.test(location.pathname)) { location.replace("landing/" + location.search); return; }
   let t = i18n[lang || "ru"];
   let today = store.loadToday();
   /* One product, two names: «Рядом» for Russian, Near for English — title, home-screen label and manifest follow the language. */
@@ -82,11 +85,15 @@
   store.firstOpen();
   { const me = new URLSearchParams(location.search).get("me"); if (me === "1" || me === "0") store.setMe(me === "1"); }
   store.source(((new URLSearchParams(location.search).get("utm_source") || "").toLowerCase().match(/^[a-z0-9_-]{1,32}$/) || [""])[0]);
-  if (lang) { signal("first_open"); signal("open"); }
+  if (lang) { if (store.dayOfUse() === 1) signal("first_open"); signal("open"); }
   function esc(s) { return String(s).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c])); }
 
   /* Swap the column with a slow crossfade; no layout jumps. */
+  /* Every screen gets its own AbortController: listeners a screen puts on #stage die when the next screen is drawn. */
+  let screen = new AbortController();
   function swap(html, after) {
+    screen.abort(); screen = new AbortController();
+    stage.onkeydown = null; stage.classList.remove("tapzone"); ["tabindex", "role", "aria-label"].forEach(a => stage.removeAttribute(a));
     const old = stage.querySelector(".col");
     const put = () => {
       stage.innerHTML = `<div class="col enter">${html}</div>`;
@@ -130,7 +137,7 @@
         setTimeout(() => ta.focus({ preventScroll: true }), reduced ? 0 : 400);
       };
       stage.classList.add("tapzone");
-      stage.addEventListener("click", open);
+      stage.addEventListener("click", open, { signal: screen.signal });
       stage.setAttribute("tabindex", "0");
       stage.onkeydown = e => { if (wrap.hidden && (e.key === "Enter" || e.key === " ")) { e.preventDefault(); open(); } };
       if (today.identity) open();
@@ -180,8 +187,8 @@
         stage.classList.remove("tapzone");
         stage.removeAttribute("role"); stage.removeAttribute("aria-label"); stage.removeAttribute("tabindex");
       };
-      stage.addEventListener("click", advance);
-      stage.addEventListener("keydown", key);
+      stage.addEventListener("click", advance, { signal: screen.signal });
+      stage.addEventListener("keydown", key, { signal: screen.signal });
       stage.focus({ preventScroll: true });
     });
   }
@@ -245,7 +252,7 @@
       document.getElementById("past").onclick = renderPast;
       const shareBtn = document.getElementById("share");
       shareBtn.onclick = async () => {
-        const url = location.origin + "/landing/?utm_source=friend#" + lang; // same host the person uses, so the link opens where they are
+        const url = location.origin + "/?utm_source=friend"; // root: a newcomer sees the landing, someone who already uses Рядом goes straight in
         if (navigator.share && matchMedia("(pointer: coarse)").matches) {
           try { await navigator.share({ title: t.appName, text: t.question, url }); return; } catch (e) { if (e && e.name === "AbortError") return; }
         }
@@ -265,7 +272,7 @@
         <button class="primary" id="pickRu" lang="ru">Русский</button>
         <button class="primary" id="pickEn" lang="en">English</button>
       </div>`, () => {
-      const pick = l => () => { lang = l; t = i18n[l]; store.setLang(l); applyName(l); signal("first_open"); signal("open"); render(); };
+      const pick = l => () => { lang = l; t = i18n[l]; store.setLang(l); applyName(l); if (store.dayOfUse() === 1) signal("first_open"); signal("open"); render(); };
       document.getElementById("pickRu").onclick = pick("ru");
       document.getElementById("pickEn").onclick = pick("en");
     });
@@ -342,7 +349,7 @@
 
   /* Returning later: re-check the day when the tab becomes visible again. */
   document.addEventListener("visibilitychange", () => {
-    if (document.visibilityState === "visible") { if (today.date !== store.todayKey()) { today = store.loadToday(); render(); } applyTone(true); }
+    if (document.visibilityState === "visible") { if (today.date !== store.todayKey()) { today = store.loadToday(); if (lang) signal("open"); render(); } applyTone(true); }
   });
 
   render();
