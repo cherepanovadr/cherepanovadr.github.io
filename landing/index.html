@@ -191,6 +191,12 @@ footer { border-top: 1px solid var(--line); padding-top: 28px; display: flex; fl
   };
   const ru = {}; document.querySelectorAll("[data-i18n]").forEach(el => ru[el.dataset.i18n] = el.dataset.i18n === "consentText" ? el.firstChild.textContent : el.textContent);
   ru.copied = "Ссылка скопирована";
+  /* Headline test (docs/launch/LAUNCH-30-DAYS.md, E1): links with ?v=feed show "a morning without the feed"; the source gets a "-v2" suffix so the report tells the two apart. */
+  const variant = new URLSearchParams(location.search).get("v") === "feed";
+  if (variant) {
+    ru.h1 = "Утро без ленты."; ru.lead = "Первые три минуты дня — твои. Один вопрос, немного тела, одно дело. И только потом телефон.";
+    en.h1 = "A morning without the feed."; en.lead = "The first three minutes of the day are yours. One question, a little body, one thing to do. Only then the phone.";
+  }
   let lang = "ru";
   try { lang = localStorage.getItem("near.landing.lang") || ((navigator.language || "").toLowerCase().startsWith("ru") ? "ru" : "en"); } catch (e) {}
   const btn = document.getElementById("langBtn");
@@ -216,7 +222,7 @@ footer { border-top: 1px solid var(--line); padding-top: 28px; display: flex; fl
   /* Dari's own devices and test runs (?me=1, same flag as the app) are tagged "me" and left out of the numbers. */
   try { if (qs.get("me") === "1" || qs.get("me") === "0") localStorage.setItem("near.me", qs.get("me")); } catch (e) {}
   let isMe = false; try { isMe = localStorage.getItem("near.me") === "1"; } catch (e) {}
-  const src = ((qs.get("utm_source") || "").toLowerCase().match(/^[a-z0-9_-]{1,32}$/) || [""])[0];
+  const src = (((qs.get("utm_source") || "").toLowerCase().match(/^[a-z0-9_-]{1,32}$/) || [""])[0] + (variant ? "-v2" : "")).replace(/^-v2$/, "v2").slice(0, 32);
   const today = new Date().toISOString().slice(0, 10);
   const API = /\.pages\.dev$|^localhost$|^127\./.test(location.hostname) ? "../api/" : "https://near-relay.cherepanovadr.deno.net/";
   shareUrl.value = location.origin + "/?utm_source=share";

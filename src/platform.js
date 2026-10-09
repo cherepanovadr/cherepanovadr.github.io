@@ -69,7 +69,45 @@ window.TH = window.TH || {};
     if (back) back.click(); else app.minimizeApp().catch(() => {});
   });
 
+  /* Morning reminder: off by default, switched on only by the person, one local notification a day at the time they chose.
+     No server, no push: the phone itself shows it. Stored as "HH:MM" under near.remind (mirrored like every near.* key). */
+  const notes = plug("LocalNotifications");
+  const REMIND_ID = 1;
+  function remindTime() { try { return JSON.parse(localStorage.getItem(PREFIX + "remind")); } catch (e) { return null; } }
+  async function scheduleReminder(hhmm, title, body) {
+    const [h, m] = hhmm.split(":").map(Number);
+    await notes.cancel({ notifications: [{ id: REMIND_ID }] }).catch(() => {});
+    await notes.schedule({ notifications: [{ id: REMIND_ID, title, body, schedule: { on: { hour: h, minute: m }, allowWhileIdle: true }, isExactNotification: false }] });
+  }
+  const reminder = {
+    supported: !!notes,
+    get: remindTime,
+    /* Returns "on", "denied" (the phone's permission was refused) or "off". */
+    async set(hhmm, title, body) {
+      if (!notes) return "off";
+      let perm = await notes.checkPermissions();
+      if (perm.display !== "granted") perm = await notes.requestPermissions();
+      if (perm.display !== "granted") return "denied";
+      await scheduleReminder(hhmm, title, body);
+      try { localStorage.setItem(PREFIX + "remind", JSON.stringify(hhmm)); } catch (e) {}
+      persist(PREFIX + "remind", hhmm);
+      return "on";
+    },
+    async clear() {
+      if (notes) await notes.cancel({ notifications: [{ id: REMIND_ID }] }).catch(() => {});
+      try { localStorage.removeItem(PREFIX + "remind"); } catch (e) {}
+      if (prefs) prefs.remove({ key: PREFIX + "remind" }).catch(() => {});
+    },
+    /* On every launch: if a reminder is set, schedule it again (idempotent) so an OS update or a reboot never loses it. */
+    async restore(title, body) {
+      const t = remindTime();
+      if (!notes || !t) return;
+      try { const perm = await notes.checkPermissions(); if (perm.display === "granted") await scheduleReminder(t, title, body); } catch (e) {}
+    },
+  };
+
   window.TH.platform = {
+    reminder,
     native, os,
     persist,
     /* Shared links always point at the public site, never at the app's internal address. */

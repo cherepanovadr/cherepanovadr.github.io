@@ -11,7 +11,7 @@
   let lang = ["ru", "en"].includes(hashLang) ? hashLang : store.getLang();
   if (["ru", "en"].includes(hashLang)) store.setLang(hashLang);
   /* One link for everyone: a newcomer who opens innernear.com in a browser first sees the short landing; anyone who has used Рядом (or opens the installed app) goes straight to the morning. */
-  const PL = window.TH.platform || { native: false, siteUrl: location.origin + "/", tap() {}, bars() {}, async shareLink() { return false; }, async shareFile() { return false; } };
+  const PL = window.TH.platform || { native: false, siteUrl: location.origin + "/", reminder: { supported: false, get() { return null; } }, tap() {}, bars() {}, async shareLink() { return false; }, async shareFile() { return false; } };
   const native = !!PL.native;
   const standalone = native || window.matchMedia("(display-mode: standalone)").matches || navigator.standalone === true;
   if (!lang && !standalone && !store.history().length && /\/(index\.html)?$/.test(location.pathname)) { location.replace("landing/" + location.search); return; }
@@ -90,6 +90,7 @@
   { const me = new URLSearchParams(location.search).get("me"); if (me === "1" || me === "0") store.setMe(me === "1"); }
   store.source(((new URLSearchParams(location.search).get("utm_source") || "").toLowerCase().match(/^[a-z0-9_-]{1,32}$/) || [""])[0]);
   if (lang) { if (store.dayOfUse() === 1) signal("first_open"); signal("open"); }
+  if (native && lang && PL.reminder.supported) PL.reminder.restore(t.appName, t.remindBody);
   function esc(s) { return String(s).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c])); }
 
   /* Swap the column with a slow crossfade; no layout jumps. */
@@ -245,8 +246,32 @@
       <div class="meta" id="meta" hidden>
         <button id="past">${esc(t.past)}</button>
         <button id="share">${esc(t.share)}</button>
+        <button id="shareQ">${esc(t.shareQuestion)}</button>
         <button id="restart">${esc(t.restart)}</button>
-      </div>`, () => {
+        ${native && PL.reminder.supported ? `<button id="remind" aria-expanded="false" aria-controls="remindRow">${esc(PL.reminder.get() ? t.remindAt.replace("{time}", PL.reminder.get()) : t.remind)}</button>` : ""}
+      </div>
+      ${native && PL.reminder.supported ? `<div class="remind" id="remindRow" hidden>
+        <input type="time" id="remindTime" value="${esc(PL.reminder.get() || "08:00")}" aria-label="${esc(t.remind)}">
+        <button class="primary" id="remindToggle">${esc(PL.reminder.get() ? t.remindTurnOff : t.remindTurnOn)}</button>
+        <p class="note" id="remindNote" hidden></p>
+        ${PL.os === "android" ? `<p class="note">${esc(t.remindAndroid)}</p>` : ""}
+      </div>` : ""}`, () => {
+      /* Reminder (phone app): off until the person turns it on; the system permission is asked only then. */
+      const remindBtn = document.getElementById("remind");
+      if (remindBtn) {
+        const row = document.getElementById("remindRow"), time = document.getElementById("remindTime"), toggle = document.getElementById("remindToggle"), note = document.getElementById("remindNote");
+        const paint = () => { const v = PL.reminder.get(); remindBtn.textContent = v ? t.remindAt.replace("{time}", v) : t.remind; toggle.textContent = v ? t.remindTurnOff : t.remindTurnOn; if (v) time.value = v; };
+        remindBtn.onclick = () => { row.hidden = !row.hidden; remindBtn.setAttribute("aria-expanded", String(!row.hidden)); note.hidden = true; };
+        toggle.onclick = async () => {
+          note.hidden = true;
+          if (PL.reminder.get()) { await PL.reminder.clear(); paint(); return; }
+          const v = /^\d{2}:\d{2}$/.test(time.value) ? time.value : "08:00";
+          const r = await PL.reminder.set(v, t.appName, t.remindBody);
+          if (r === "denied") { note.textContent = t.remindDenied; note.hidden = false; }
+          paint();
+        };
+        time.onchange = async () => { if (PL.reminder.get() && /^\d{2}:\d{2}$/.test(time.value)) { await PL.reminder.set(time.value, t.appName, t.remindBody); paint(); } };
+      }
       /* Owner switch: five quick taps on the small mark exclude this device from the stats (works inside the installed app too). */
       const mark = document.querySelector(".mark"); let taps = 0, tapTimer = null;
       if (mark) mark.addEventListener("click", () => {
@@ -261,19 +286,23 @@
       const go = document.getElementById("go"), meta = document.getElementById("meta");
       go.onclick = () => { meta.hidden = false; meta.classList.add("enter"); go.setAttribute("aria-expanded", "true"); };
       document.getElementById("restart").onclick = () => { today = store.reset(); render(); };
-      document.getElementById("past").onclick = renderPast;
-      const shareBtn = document.getElementById("share");
-      shareBtn.onclick = async () => {
-        const url = PL.siteUrl + "?utm_source=friend"; // root: a newcomer sees the landing, someone who already uses Рядом goes straight in
-        if (await PL.shareLink(t.appName, t.question, url)) return; // phone app: the system share sheet
+      document.getElementById("past").onclick = () => { signal("past"); renderPast(); };
+      /* Two ways to pass it on: the link, or the question itself with the link under it (words travel better than URLs). Each has its own utm_source so the report shows which one brings people. */
+      const shareWith = (btn, label, text, url) => async () => {
+        signal("share");
+        if (await PL.shareLink(t.appName, text, url)) return; // phone app: the system share sheet
         if (navigator.share && matchMedia("(pointer: coarse)").matches) {
-          try { await navigator.share({ title: t.appName, text: t.question, url }); return; } catch (e) { if (e && e.name === "AbortError") return; }
+          try { await navigator.share({ title: t.appName, text, url }); return; } catch (e) { if (e && e.name === "AbortError") return; }
         }
-        try { await navigator.clipboard.writeText(url); }
-        catch (e) { window.prompt && window.prompt(t.share, url); }
-        shareBtn.textContent = t.copied;
-        setTimeout(() => { shareBtn.textContent = t.share; }, 2400);
+        const clip = text === t.question && url ? text + "\n" + url : url;
+        try { await navigator.clipboard.writeText(clip); }
+        catch (e) { try { window.prompt && window.prompt(label, clip); } catch (err) { /* no clipboard and no prompt: nothing more to do */ } }
+        btn.textContent = t.copied;
+        setTimeout(() => { btn.textContent = label; }, 2400);
       };
+      const shareBtn = document.getElementById("share"), shareQBtn = document.getElementById("shareQ");
+      shareBtn.onclick = shareWith(shareBtn, t.share, t.question, PL.siteUrl + "?utm_source=friend"); // root: a newcomer sees the landing, someone who already uses Рядом goes straight in
+      shareQBtn.onclick = shareWith(shareQBtn, t.shareQuestion, t.question, PL.siteUrl + "?utm_source=question");
     });
   }
 

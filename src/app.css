@@ -246,3 +246,9 @@ html.native::before { content: ""; position: fixed; top: 0; left: 0; right: 0; h
 html.native { font: -apple-system-body; font-size: clamp(100%, 1em, 160%); }
 html.native body { font-family: var(--font-body); font-size: 1.0625rem; }
 [tabindex="-1"]:focus { outline: none; } /* programmatic focus for screen readers only: no ring on headings */
+
+/* Reminder row (phone app): a time and one quiet button, shown only after "Remind me in the morning". */
+.remind { display: flex; flex-wrap: wrap; gap: 8px 22px; align-items: center; margin-top: 18px; }
+.remind[hidden] { display: none; }
+.remind input[type="time"] { font: inherit; font-size: 1.0625rem; color: var(--fg); background: none; border: 0; border-bottom: 1px solid var(--line); padding: 8px 0; min-height: 44px; color-scheme: light dark; }
+.remind .note { flex-basis: 100%; color: var(--fg-soft); font-size: .875rem; margin: 0; }
