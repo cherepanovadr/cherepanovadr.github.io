@@ -110,7 +110,7 @@ body {
   color: var(--fg-soft); margin: 0 0 20px;
 }
 .hint {
-  color: var(--fg-faint); font-size: .9375rem; margin: 28px 0 0;
+  color: var(--fg-soft); font-size: .9375rem; margin: 28px 0 0;
   transition: opacity var(--t-slow) var(--ease);
 }
 .hint.pending { opacity: 0; }
@@ -151,7 +151,7 @@ button:focus-visible { outline: 1.5px solid var(--accent); outline-offset: 6px; 
   transition: color var(--t-mid) var(--ease), background-size var(--t-mid) var(--ease);
 }
 .primary:disabled { color: var(--fg-faint); background-size: 0 1px; cursor: default; }
-.ghost { color: var(--fg-faint); font-size: .9375rem; }
+.ghost { color: var(--fg-soft); font-size: .9375rem; }
 .ghost:hover { color: var(--fg-soft); }
 
 /* Breathing orb (body stage) */
@@ -174,7 +174,7 @@ button:focus-visible { outline: 1.5px solid var(--accent); outline-offset: 6px; 
 .one {
   font-family: var(--font-display); font-weight: 360;
   font-variation-settings: "opsz" 72;
-  font-size: clamp(1.9rem, 5.4vw, 4rem); line-height: 1.12; letter-spacing: -0.012em;
+  font-size: clamp(1.9rem, 5.4vw, 4rem); line-height: 1.12; letter-spacing: -0.012em; white-space: pre-line;
   margin: 0; text-wrap: balance; overflow-wrap: anywhere;
 }
 .horizon {
@@ -183,7 +183,7 @@ button:focus-visible { outline: 1.5px solid var(--accent); outline-offset: 6px; 
 }
 @keyframes horizon { from { transform: scaleX(0); } to { transform: scaleX(1); } }
 .identity-line { color: var(--fg-soft); margin: 0 0 32px; font-size: 1.0625rem; }
-.identity-line em { font-style: normal; color: var(--fg); }
+.identity-line em { font-style: normal; color: var(--fg); white-space: pre-line; }
 
 /* The closing phrase is a quiet button: a tap on it reveals the links below */
 .go {
@@ -201,7 +201,7 @@ button:focus-visible { outline: 1.5px solid var(--accent); outline-offset: 6px; 
 /* Phone app, first open only: a quiet way to bring mornings from the website. */
 .carry { margin: 56px 0 0; }
 .carry .ghost { text-align: left; line-height: 1.6; }
-.meta button { color: var(--fg-faint); font-size: .8125rem; padding: 8px 0; white-space: nowrap; }
+.meta button { color: var(--fg-soft); font-size: .875rem; padding: 8px 0; white-space: nowrap; }
 .meta button:hover { color: var(--fg-soft); }
 
 /* a11y */
@@ -221,7 +221,7 @@ button:focus-visible { outline: 1.5px solid var(--accent); outline-offset: 6px; 
 .entry { padding-block: 22px; border-top: 1px solid var(--line); display: grid; gap: 6px; }
 .entry:first-child { border-top: 0; padding-top: 4px; }
 .entry .when { font-size: .8125rem; color: var(--fg-faint); letter-spacing: .02em; }
-.entry .who { font-family: var(--font-display); font-weight: 360; font-size: 1.35rem; line-height: 1.25; margin: 0; overflow-wrap: anywhere; }
+.entry .who { font-family: var(--font-display); font-weight: 360; font-size: 1.35rem; line-height: 1.25; margin: 0; overflow-wrap: anywhere; white-space: pre-line; }
 .entry .who.empty { color: var(--fg-soft); font-style: italic; }
 .entry .act, .entry .note { margin: 0; color: var(--fg-soft); font-size: .9688rem; overflow-wrap: anywhere; }
 .entry .act b { font-weight: 500; color: var(--fg-soft); }
@@ -229,13 +229,20 @@ button:focus-visible { outline: 1.5px solid var(--accent); outline-offset: 6px; 
 .past-head { display: flex; justify-content: space-between; align-items: baseline; gap: 16px; margin-bottom: 12px; }
 /* Keep: quiet backup links under the list */
 .keep { margin-top: 44px; padding-top: 20px; border-top: 1px solid var(--line); }
-.keep .note { color: var(--fg-faint); font-size: .8125rem; line-height: 1.5; margin: 0; max-width: 34em; }
+.keep .note { color: var(--fg-soft); font-size: .875rem; line-height: 1.5; margin: 0; max-width: 34em; }
 .keep .meta { margin-top: 6px; }
 .keep .write { margin: 28px 0 0; font-size: .8125rem; }
 .keep .write a { color: var(--fg-faint); text-decoration: none; border-bottom: 1px solid var(--line); padding-bottom: 2px; }
 .keep .write a:hover { color: var(--fg-soft); }
+.keep .write.soft { margin-top: 12px; color: var(--fg-faint); }
 .past-head h2 { font-family: var(--font-display); font-weight: 340; font-size: clamp(1.6rem, 4vw, 2.4rem); margin: 0; letter-spacing: -.01em; }
 @media (prefers-reduced-motion: reduce) { html.flow { transition: none; } }
 
 /* Phone app: no browser bar above the page, so scrolled text would run under the clock and the island. A strip in the page colour keeps the top quiet. */
 html.native::before { content: ""; position: fixed; top: 0; left: 0; right: 0; height: calc(env(safe-area-inset-top, 0px) + 14px); background: linear-gradient(var(--bg) calc(100% - 14px), transparent); z-index: 5; pointer-events: none; }
+
+/* Phone app on iOS: follow the system text size (Dynamic Type). "-apple-system-body" makes 1rem track the setting; our own families are set again on body.
+   Sizes are capped so the largest accessibility settings still fit the screen. */
+html.native { font: -apple-system-body; font-size: clamp(100%, 1em, 160%); }
+html.native body { font-family: var(--font-body); font-size: 1.0625rem; }
+[tabindex="-1"]:focus { outline: none; } /* programmatic focus for screen readers only: no ring on headings */

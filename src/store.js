@@ -18,7 +18,10 @@ window.TH = window.TH || {};
   }
   function write(k, v) {
     mem[k] = v;
-    try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) { /* memory only */ }
+    try { localStorage.setItem(k, JSON.stringify(v)); }
+    catch (e) { // storage full or blocked: keep going in memory, but say so once instead of losing the morning silently
+      if (!write.warned) { write.warned = true; const live = document.getElementById("live"); const msg = (window.TH.i18n && window.TH.i18n[read(K.lang) || "ru"] || {}).saveFailed; if (live && msg) live.textContent = msg; }
+    }
     if (window.TH.platform) window.TH.platform.persist(k, v); // in the phone app: mirror to native storage
   }
 

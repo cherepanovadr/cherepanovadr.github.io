@@ -11,7 +11,7 @@
   let lang = ["ru", "en"].includes(hashLang) ? hashLang : store.getLang();
   if (["ru", "en"].includes(hashLang)) store.setLang(hashLang);
   /* One link for everyone: a newcomer who opens innernear.com in a browser first sees the short landing; anyone who has used Рядом (or opens the installed app) goes straight to the morning. */
-  const PL = window.TH.platform || { native: false, tap() {}, bars() {}, async shareLink() { return false; }, async shareFile() { return false; } };
+  const PL = window.TH.platform || { native: false, siteUrl: location.origin + "/", tap() {}, bars() {}, async shareLink() { return false; }, async shareFile() { return false; } };
   const native = !!PL.native;
   const standalone = native || window.matchMedia("(display-mode: standalone)").matches || navigator.standalone === true;
   if (!lang && !standalone && !store.history().length && /\/(index\.html)?$/.test(location.pathname)) { location.replace("landing/" + location.search); return; }
@@ -95,20 +95,25 @@
   /* Swap the column with a slow crossfade; no layout jumps. */
   /* Every screen gets its own AbortController: listeners a screen puts on #stage die when the next screen is drawn. */
   let screen = new AbortController();
-  function swap(html, after) {
+  function swap(html, after, say) {
     screen.abort(); screen = new AbortController();
     stage.onkeydown = null; stage.classList.remove("tapzone"); ["tabindex", "role", "aria-label"].forEach(a => stage.removeAttribute(a));
     const old = stage.querySelector(".col");
     const put = () => {
       stage.innerHTML = `<div class="col enter">${html}</div>`;
       const live = document.getElementById("live");
-      if (live) live.textContent = t.stageLabel[["open", "body", "one", "done"].indexOf(today.stage)];
+      if (live) live.textContent = say || t.stageLabel[["open", "body", "one", "done"].indexOf(today.stage)];
       after && after();
+      /* Screen readers: land on the first heading or control of the new screen instead of the page background. */
+      if (!stage.querySelector("textarea:focus")) { const first = stage.querySelector("h1, h2, .cue, [role=group], .past-head"); if (first) { first.setAttribute("tabindex", "-1"); first.focus({ preventScroll: true }); } }
     };
     if (old && T_OUT) { old.classList.add("fade", "out"); setTimeout(put, T_OUT); } else put();
   }
 
-  function go(next) { today.stage = next; save(); render(); }
+  function go(next) {
+    if (today.date !== store.todayKey()) { today = store.loadToday(); render(); return; } // kept open across 04:00: a new morning starts clean
+    today.stage = next; save(); render();
+  }
 
   /* ---------- Stage 1: Identity ---------- */
   function renderOpen() {
@@ -118,7 +123,7 @@
       <p class="hint pending" id="hint">${esc(t.tapWhenReady)}</p>
       <div id="answerWrap" hidden>
         <label class="sr-only" for="identity">${esc(t.question)}</label>
-        <textarea class="answer" id="identity" rows="1" placeholder="${esc(t.identityPlaceholder)}" autocomplete="off">${esc(today.identity)}</textarea>
+        <textarea class="answer" maxlength="2000" id="identity" rows="1" placeholder="${esc(t.identityPlaceholder)}" autocomplete="off">${esc(today.identity)}</textarea>
         <div class="actions">
           <button class="primary" id="next">${esc(t.next)}</button>
           <button class="ghost" id="noWords">${esc(t.noWords)}</button>
@@ -142,7 +147,7 @@
       };
       stage.classList.add("tapzone");
       stage.addEventListener("click", open, { signal: screen.signal });
-      stage.setAttribute("tabindex", "0");
+      stage.setAttribute("tabindex", "0"); stage.setAttribute("role", "button"); stage.setAttribute("aria-labelledby", "q"); stage.setAttribute("aria-describedby", "hint");
       stage.onkeydown = e => { if (wrap.hidden && (e.key === "Enter" || e.key === " ")) { e.preventDefault(); open(); } };
       if (today.identity) open();
 
@@ -169,7 +174,8 @@
       stage.classList.add("tapzone");
       stage.setAttribute("tabindex", "0");
       stage.setAttribute("role", "button");
-      stage.setAttribute("aria-label", t.tapToContinue);
+      stage.setAttribute("aria-labelledby", "cue"); // VoiceOver reads the cue itself, not a generic label
+      stage.setAttribute("aria-describedby", "hint");
 
       let busy = false;
       const advance = () => {
@@ -181,6 +187,7 @@
         cue.classList.add("out");
         setTimeout(() => {
           cue.textContent = cues[today.bodyIndex];
+          const live = document.getElementById("live"); if (live) live.textContent = cues[today.bodyIndex]; // announce the new cue
           cue.classList.remove("out");
           busy = false;
         }, T_OUT);
@@ -190,7 +197,7 @@
         stage.removeEventListener("click", advance);
         stage.removeEventListener("keydown", key);
         stage.classList.remove("tapzone");
-        stage.removeAttribute("role"); stage.removeAttribute("aria-label"); stage.removeAttribute("tabindex");
+        stage.removeAttribute("role"); stage.removeAttribute("aria-labelledby"); stage.removeAttribute("aria-describedby"); stage.removeAttribute("tabindex");
       };
       stage.addEventListener("click", advance, { signal: screen.signal });
       stage.addEventListener("keydown", key, { signal: screen.signal });
@@ -203,7 +210,7 @@
     swap(`
       <h2 class="q fade" id="oneQ" style="font-size:clamp(1.7rem,4.6vw,3.2rem)">${esc(t.oneQuestion)}</h2>
       <label class="sr-only" for="oneThing">${esc(t.oneQuestion)}</label>
-      <textarea class="answer" id="oneThing" rows="1" placeholder="${esc(t.onePlaceholder)}">${esc(today.oneThing)}</textarea>
+      <textarea class="answer" maxlength="2000" id="oneThing" rows="1" placeholder="${esc(t.onePlaceholder)}">${esc(today.oneThing)}</textarea>
       <div class="actions">
         <button class="primary" id="fix" ${today.oneThing ? "" : "disabled"}>${esc(t.fix)}</button>
         <button class="ghost" id="dontKnow">${esc(t.dontKnow)}</button>
@@ -279,7 +286,7 @@
         <button class="primary" id="pickEn" lang="en">English</button>
       </div>
       ${native ? `<p class="carry"><button class="ghost" id="carry">${esc(i18n.ru.carry)}<br><span lang="en">${esc(i18n.en.carry)}</span></button>
-        <input type="file" id="carryFile" accept=".json,application/json" hidden></p>` : ""}`, () => {
+        <input type="file" id="carryFile" ${native ? "" : `accept=".json,application/json"`} hidden></p>` : ""}`, () => {
       const pick = l => () => { lang = l; t = i18n[l]; store.setLang(l); applyName(l); if (store.dayOfUse() === 1) signal("first_open"); signal("open"); render(); };
       /* Phone app, first open: someone who used Рядом on the website brings the mornings along with the saved file. */
       const carry = document.getElementById("carry"), carryFile = document.getElementById("carryFile");
@@ -322,9 +329,10 @@
         <div class="meta">
           ${items ? `<button id="save">${esc(t.save)}</button>` : ""}
           <button id="restore">${esc(t.restore)}</button>
-          <input type="file" id="file" accept=".json,application/json" hidden>
+          <input type="file" id="file" ${native ? "" : `accept=".json,application/json"`} hidden>
         </div>
-        <p class="write"><a href="mailto:${esc(window.TH.FEEDBACK_EMAIL)}?subject=${encodeURIComponent(t.appName)}">${esc(t.writeToDari)}</a></p>
+        <p class="write"><a href="mailto:${esc(window.TH.FEEDBACK_EMAIL)}?subject=${encodeURIComponent(t.appName)}">${esc(t.writeToDari)}</a>${native ? ` · <a href="https://innernear.com/privacy/" target="_blank" rel="noopener">${esc(t.dataPage)}</a>` : ""}</p>
+        ${native ? `<p class="write soft">${esc(t.notTherapy)}</p>` : ""}
       </div>`, () => {
       document.getElementById("back").onclick = () => render();
       const saveBtn = document.getElementById("save");
@@ -336,6 +344,7 @@
         const json = JSON.stringify(store.exportData(), null, 2);
         const name = "near-mornings-" + store.todayKey() + ".json";
         const native_ = await PL.shareFile(name, json, t.appName); // phone app: Documents folder (Android) or share sheet (iOS)
+        if (native_ === "cancelled") return; // the person closed the sheet: say nothing
         if (native_) { say(saveBtn, native_ === "documents" ? t.savedDocs : t.saved, t.save); return; }
         /* Phone browser: the share sheet ("Save to Files", AirDrop…). Elsewhere: a plain download. */
         if (navigator.canShare && window.File && matchMedia("(pointer: coarse)").matches) {
