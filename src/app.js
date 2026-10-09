@@ -11,7 +11,9 @@
   let lang = ["ru", "en"].includes(hashLang) ? hashLang : store.getLang();
   if (["ru", "en"].includes(hashLang)) store.setLang(hashLang);
   /* One link for everyone: a newcomer who opens innernear.com in a browser first sees the short landing; anyone who has used Рядом (or opens the installed app) goes straight to the morning. */
-  const standalone = window.matchMedia("(display-mode: standalone)").matches || navigator.standalone === true;
+  const PL = window.TH.platform || { native: false, tap() {}, bars() {}, async shareLink() { return false; }, async shareFile() { return false; } };
+  const native = !!PL.native;
+  const standalone = native || window.matchMedia("(display-mode: standalone)").matches || navigator.standalone === true;
   if (!lang && !standalone && !store.history().length && /\/(index\.html)?$/.test(location.pathname)) { location.replace("landing/" + location.search); return; }
   let t = i18n[lang || "ru"];
   let today = store.loadToday();
@@ -41,6 +43,7 @@
     root.style.setProperty("--fg-faint", (dark ? P.darkFaint : P.lightFaint)[i]);
     root.style.setProperty("--line", (dark ? P.darkLine : P.lightLine)[i]);
     root.style.setProperty("--glow", (dark ? P.darkGlow : P.lightGlow)[i]);
+    PL.bars(dark);
     document.querySelectorAll('meta[name="theme-color"]').forEach(m => m.setAttribute("content", (dark ? P.dark : P.light)[i]));
     let fav = document.querySelector('link[rel="icon"][data-tone]');
     if (!fav) { fav = document.createElement("link"); fav.rel = "icon"; fav.type = "image/svg+xml"; fav.dataset.tone = "1"; document.head.appendChild(fav); }
@@ -65,6 +68,7 @@
 
   /* ---------- Anonymous usage signal. One short event per day, nothing personal (docs/ANALYTICS-PLAN.md). ---------- */
   function platform() {
+    if (native) return window.TH.platform.os + "-app";
     const ua = navigator.userAgent || "";
     const os = /iPhone|iPad|iPod/.test(ua) ? "ios" : /Android/.test(ua) ? "android" : "desktop";
     const standalone = window.matchMedia("(display-mode: standalone)").matches || navigator.standalone === true;
@@ -72,7 +76,7 @@
   }
   /* The API lives on Cloudflare. From a mirror (GitHub Pages, for people where Cloudflare is blocked) the call is cross-origin and may simply fail: the app never depends on it. */
   /* On Cloudflare: straight to the function. Elsewhere (GitHub Pages, own domain): through the relay, which Russia does not block. */
-  const API = /\.pages\.dev$|^localhost$|^127\./.test(location.hostname) ? "api/" : window.TH.RELAY;
+  const API = !native && /\.pages\.dev$|^localhost$|^127\./.test(location.hostname) ? "api/" : window.TH.RELAY;
   function signal(type) {
     if (store.sentToday(type) || location.protocol === "file:") return;
     store.markSent(type);
@@ -172,6 +176,7 @@
         if (busy) return; busy = true;
         if (hint) hint.hidden = true;
         if (today.bodyIndex >= cues.length - 1) { cleanup(); signal("body"); go("one"); return; }
+        PL.tap(); // in the phone app: a soft tick as the next cue arrives
         today.bodyIndex += 1; save();
         cue.classList.add("out");
         setTimeout(() => {
@@ -252,7 +257,8 @@
       document.getElementById("past").onclick = renderPast;
       const shareBtn = document.getElementById("share");
       shareBtn.onclick = async () => {
-        const url = location.origin + "/?utm_source=friend"; // root: a newcomer sees the landing, someone who already uses Рядом goes straight in
+        const url = PL.siteUrl + "?utm_source=friend"; // root: a newcomer sees the landing, someone who already uses Рядом goes straight in
+        if (await PL.shareLink(t.appName, t.question, url)) return; // phone app: the system share sheet
         if (navigator.share && matchMedia("(pointer: coarse)").matches) {
           try { await navigator.share({ title: t.appName, text: t.question, url }); return; } catch (e) { if (e && e.name === "AbortError") return; }
         }
@@ -271,8 +277,25 @@
       <div class="langpick" role="group" aria-label="Язык · Language">
         <button class="primary" id="pickRu" lang="ru">Русский</button>
         <button class="primary" id="pickEn" lang="en">English</button>
-      </div>`, () => {
+      </div>
+      ${native ? `<p class="carry"><button class="ghost" id="carry">${esc(i18n.ru.carry)}<br><span lang="en">${esc(i18n.en.carry)}</span></button>
+        <input type="file" id="carryFile" accept=".json,application/json" hidden></p>` : ""}`, () => {
       const pick = l => () => { lang = l; t = i18n[l]; store.setLang(l); applyName(l); if (store.dayOfUse() === 1) signal("first_open"); signal("open"); render(); };
+      /* Phone app, first open: someone who used Рядом on the website brings the mornings along with the saved file. */
+      const carry = document.getElementById("carry"), carryFile = document.getElementById("carryFile");
+      if (carry) {
+        carry.onclick = () => { carryFile.value = ""; carryFile.click(); };
+        carryFile.onchange = async () => {
+          const f = carryFile.files && carryFile.files[0]; if (!f) return;
+          let msg;
+          try {
+            if (f.size > 5e6) throw new Error("size");
+            msg = store.importData(JSON.parse(await f.text())) ? "carried" : "nothingNew";
+            today = store.loadToday(); applyTone(true);
+          } catch (e) { msg = "badFile"; }
+          carry.innerHTML = esc(i18n.ru[msg]) + "<br>" + esc(i18n.en[msg]);
+        };
+      }
       document.getElementById("pickRu").onclick = pick("ru");
       document.getElementById("pickEn").onclick = pick("en");
     });
@@ -295,7 +318,7 @@
       <div class="past-head"><h2>${esc(t.past)}</h2><button class="ghost" id="back">${esc(t.back)}</button></div>
       <div class="past">${items || `<p class="soft">${esc(t.pastEmpty)}</p>`}</div>
       <div class="keep">
-        <p class="note">${esc(t.keepNote)}</p>
+        <p class="note">${esc((native ? t.keepNoteApp : t.keepNote))}</p>
         <div class="meta">
           ${items ? `<button id="save">${esc(t.save)}</button>` : ""}
           <button id="restore">${esc(t.restore)}</button>
@@ -312,7 +335,9 @@
       if (saveBtn) saveBtn.onclick = async () => {
         const json = JSON.stringify(store.exportData(), null, 2);
         const name = "near-mornings-" + store.todayKey() + ".json";
-        /* Phone: the share sheet ("Save to Files", AirDrop…). Elsewhere: a plain download. */
+        const native_ = await PL.shareFile(name, json, t.appName); // phone app: Documents folder (Android) or share sheet (iOS)
+        if (native_) { say(saveBtn, native_ === "documents" ? t.savedDocs : t.saved, t.save); return; }
+        /* Phone browser: the share sheet ("Save to Files", AirDrop…). Elsewhere: a plain download. */
         if (navigator.canShare && window.File && matchMedia("(pointer: coarse)").matches) {
           try {
             const f = new File([json], name, { type: "application/json" });

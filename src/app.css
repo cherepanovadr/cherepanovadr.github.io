@@ -198,6 +198,9 @@ button:focus-visible { outline: 1.5px solid var(--accent); outline-offset: 6px; 
 .meta[hidden] { display: none; }
 /* First open: language */
 .langpick { display: flex; flex-wrap: wrap; gap: 8px 36px; align-items: center; }
+/* Phone app, first open only: a quiet way to bring mornings from the website. */
+.carry { margin: 56px 0 0; }
+.carry .ghost { text-align: left; line-height: 1.6; }
 .meta button { color: var(--fg-faint); font-size: .8125rem; padding: 8px 0; white-space: nowrap; }
 .meta button:hover { color: var(--fg-soft); }
 
@@ -233,3 +236,6 @@ button:focus-visible { outline: 1.5px solid var(--accent); outline-offset: 6px; 
 .keep .write a:hover { color: var(--fg-soft); }
 .past-head h2 { font-family: var(--font-display); font-weight: 340; font-size: clamp(1.6rem, 4vw, 2.4rem); margin: 0; letter-spacing: -.01em; }
 @media (prefers-reduced-motion: reduce) { html.flow { transition: none; } }
+
+/* Phone app: no browser bar above the page, so scrolled text would run under the clock and the island. A strip in the page colour keeps the top quiet. */
+html.native::before { content: ""; position: fixed; top: 0; left: 0; right: 0; height: calc(env(safe-area-inset-top, 0px) + 14px); background: linear-gradient(var(--bg) calc(100% - 14px), transparent); z-index: 5; pointer-events: none; }

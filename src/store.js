@@ -19,6 +19,7 @@ window.TH = window.TH || {};
   function write(k, v) {
     mem[k] = v;
     try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) { /* memory only */ }
+    if (window.TH.platform) window.TH.platform.persist(k, v); // in the phone app: mirror to native storage
   }
 
   function todayKey(now) {
